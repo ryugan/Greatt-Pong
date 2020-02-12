@@ -1,5 +1,7 @@
 ﻿using Greatt.DAL.Entities;
 using Greatt.DAL.Interface;
+using Greatt.DAL.Exception;
+using Greatt.DAL.Resource;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -25,7 +27,15 @@ namespace Greatt.DAL.Repository
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<T> GetByIdAsync(Guid id) => await _dbContext.Set<T>().FindAsync(id);
+        public async Task<T> GetByIdAsync(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                throw new EntityException(ErrorEntityResource.NoEntityId);
+            }
+
+            return await _dbContext.Set<T>().FindAsync(id);
+        }
 
         /// <summary>
         /// Retourne la liste des entités
@@ -38,7 +48,15 @@ namespace Greatt.DAL.Repository
         /// </summary>
         /// <param name="ids"></param>
         /// <returns></returns>
-        public async Task<List<T>> GetAllAsync(List<Guid> ids) => await _dbContext.Set<T>().Where(e => ids.Any(i => e.Id == i)).ToListAsync();
+        public async Task<List<T>> GetAllAsync(List<Guid> ids)
+        {
+            if (ids == null || !ids.Any())
+            {
+                throw new EntityException(ErrorEntityResource.NoEntitiesId);
+            }
+
+            return await _dbContext.Set<T>().Where(e => ids.Any(i => e.Id == i)).ToListAsync();
+        }
 
         /// <summary>
         /// Ajoute une entité
@@ -47,6 +65,11 @@ namespace Greatt.DAL.Repository
         /// <returns></returns>
         public async Task<T> AddAsync(T entity)
         {
+            if (entity == null)
+            {
+                throw new EntityException(ErrorEntityResource.NoEntity);
+            }
+
             await _dbContext.Set<T>().AddAsync(entity);
             await _dbContext.SaveChangesAsync();
 
@@ -60,6 +83,11 @@ namespace Greatt.DAL.Repository
         /// <returns></returns>
         public async Task<List<T>> AddRangeAsync(List<T> entities)
         {
+            if (entities == null || !entities.Any())
+            {
+                throw new EntityException(ErrorEntityResource.NoEntities);
+            }
+
             await _dbContext.Set<T>().AddRangeAsync(entities);
             await _dbContext.SaveChangesAsync();
 
@@ -73,6 +101,11 @@ namespace Greatt.DAL.Repository
         /// <returns></returns>
         public async Task DeleteAsync(T entity)
         {
+            if (entity == null)
+            {
+                throw new EntityException(ErrorEntityResource.NoEntity);
+            }
+
             _dbContext.Set<T>().Remove(entity);
             await _dbContext.SaveChangesAsync();
         }
@@ -84,6 +117,11 @@ namespace Greatt.DAL.Repository
         /// <returns></returns>
         public async Task DeleteRangeAsync(List<T> entities)
         {
+            if (entities == null || !entities.Any())
+            {
+                throw new EntityException(ErrorEntityResource.NoEntities);
+            }
+
             _dbContext.Set<T>().RemoveRange(entities);
             await _dbContext.SaveChangesAsync();
         }
@@ -95,6 +133,16 @@ namespace Greatt.DAL.Repository
         /// <returns></returns>
         public async Task UpdateAsync(T entity)
         {
+            if (entity == null)
+            {
+                throw new EntityException(ErrorEntityResource.NoEntity);
+            }
+
+            if (entity.Id == Guid.Empty)
+            {
+                throw new EntityException(ErrorEntityResource.NoEntitiesId);
+            }
+
             _dbContext.Entry(entity).State = EntityState.Modified;
             await _dbContext.SaveChangesAsync();
         }
@@ -106,6 +154,11 @@ namespace Greatt.DAL.Repository
         /// <returns></returns>
         public async Task UpdateRangeAsync(List<T> entities)
         {
+            if (entities == null || !entities.Any())
+            {
+                throw new EntityException(ErrorEntityResource.NoEntities);
+            }
+
             _dbContext.Entry(entities).State = EntityState.Modified;
             await _dbContext.SaveChangesAsync();
         }

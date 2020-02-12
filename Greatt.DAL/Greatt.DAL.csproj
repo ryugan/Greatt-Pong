@@ -20,4 +20,19 @@
     <ProjectReference Include="..\Greatt.Domain\Greatt.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Resource\ErrorEntityResource.Designer.cs">
+      <DependentUpon>ErrorEntityResource.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resource\ErrorEntityResource.resx">
+      <LastGenOutput>ErrorEntityResource.Designer.cs</LastGenOutput>
+      <Generator>PublicResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>
